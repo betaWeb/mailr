@@ -1,0 +1,31 @@
+{
+  "name": "mailr",
+  "version": "1.0.0",
+  "description": "Fluent mail library for NodeJS",
+  "main": "Mailer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betaWeb/mailr.git"
+  },
+  "keywords": [
+    "mailer",
+    "nodemailer",
+    "mail",
+    "nodejs",
+    "fluent"
+  ],
+  "author": "betaweb <betaweb34@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/betaWeb/mailr/issues"
+  },
+  "homepage": "https://github.com/betaWeb/mailr#readme",
+  "dependencies": {
+    "ejs": "^2.5.7",
+    "lodash": "^4.17.4",
+    "nodemailer": "^4.1.3"
+  }
+}
