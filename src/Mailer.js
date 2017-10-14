@@ -131,7 +131,6 @@ class Mailer {
      * @param {Boolean} optional
      * @returns {String}
      * @requires fs
-     * @requires ejs renderer
      * @private
      * @throws Error
      */
