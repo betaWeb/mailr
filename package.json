@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/betaWeb/mailr#readme",
   "dependencies": {
-    "ejs": "^2.5.7",
     "lodash": "^4.17.4",
     "nodemailer": "^4.1.3"
   }
