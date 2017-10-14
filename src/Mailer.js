@@ -10,8 +10,8 @@ const Message = require('./Message')
  */
 const MAILER_OPTIONS = {
     template_path: './templates',
-    template_renderer: 'ejs',
     template_extension: '.ejs',
+    renderer_module_name: 'ejs',
     text_extension: '.txt',
     transporter_options: {}
 }
@@ -157,13 +157,13 @@ class Mailer {
     }
 
     _getRenderer () {
-        const renderer = this.options.template_renderer
+        const renderer = this.options.renderer_module_name
         if (!renderer) throw new Error("Mailer::_getRenderer - No renderer defined !")
         else if (renderer.constructor === String) {
             try {
                 this._renderer = require(renderer)
             } catch (err) {
-                throw new Error(`Mailer::_getRenderer - Require renderer module error - ${err}`)
+                throw new Error(`Mailer::_getRenderer - Require "${renderer}" module error - ${err}`)
             }
         } else this._renderer = renderer
     }
