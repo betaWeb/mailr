@@ -152,7 +152,7 @@ class Mailer {
      * @protected
      */
     _createTransport () {
-        if (this.transporter !== null) return
+        if (this.transporter !== null && this.transporter instanceof Transporter) return
         this.transporter = new Transporter(this.options.transporter_options).getTransport()
     }
 
