@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
 /**
  * @constant ATTACHMENT_DEFAULTS
@@ -20,14 +20,14 @@ const ATTACHMENT_DEFAULTS = {
         'headers',
         'raw'
     ]
-};
+}
 
 /**
  * @constant ATTACHMENT_OPTIONS
  */
 const ATTACHMENT_OPTIONS = {
     STREAM_OPTIONS: 'utf8'
-};
+}
 
 /**
  * @class Attachment
@@ -53,39 +53,39 @@ class Attachment {
          * @description Attachment path
          * @public
          */
-        this.path = path;
+        this.path = path
 
         /**
          * @description Attachment name
          * @public
          */
-        this.name = name;
+        this.name = name
 
         /**
          * @description Attachment options
          * @public
          */
-        this.options = Object.assign({}, ATTACHMENT_OPTIONS, options);
+        this.options = Object.assign({}, ATTACHMENT_OPTIONS, options)
 
         /**
          * @description Attachment headers
          * @public
          */
-        this.headers = headers;
+        this.headers = headers
 
         /**
          * @description Attachment properties
          * @private
          */
-        this._attachment = {};
+        this._attachment = {}
 
         /**
          * @description Attachment file type
          * @private
          */
-        this._file_type = this.options.type || ATTACHMENT_DEFAULTS.FILE_TYPE;
+        this._file_type = this.options.type || ATTACHMENT_DEFAULTS.FILE_TYPE
 
-        return this._getProperties();
+        return this._getProperties()
     }
 
     /**
@@ -94,34 +94,34 @@ class Attachment {
      * @private
      */
     _getProperties () {
-        if (this.options.raw) this._attachment.raw = this.options.raw;
+        if (this.options.raw) this._attachment.raw = this.options.raw
         else {
-            if (!this.path) throw new Error('Attachment::getProperty - Missing attachment content');
+            if (!this.path) throw new Error('Attachment::getProperty - Missing attachment content')
             if (this._file_type === 'local') {
-                const path = this._checkPath();
-                this._attachment.filePath = path;
-                this._attachment.path = path;
+                const path = this._checkPath()
+                this._attachment.filePath = path
+                this._attachment.path = path
             }
             else if (this._file_type === 'stream') {
-                const path = this._checkPath();
-                this._attachment.content = fs.createReadStream(path, this.options.STREAM_OPTIONS);
-                this._attachment.filePath = path;
+                const path = this._checkPath()
+                this._attachment.content = fs.createReadStream(path, this.options.STREAM_OPTIONS)
+                this._attachment.filePath = path
             }
-            else if (this._file_type === 'string') this._attachment.content = this.path;
-            else if (this._file_type === 'href') this._attachment.href = this.path;
+            else if (this._file_type === 'string') this._attachment.content = this.path
+            else if (this._file_type === 'href') this._attachment.href = this.path
 
             if (
                 !this.name
                 || this.name.constructor !== String
                 || !this.name.length
             ) {
-                this._setNameByPath();
+                this._setNameByPath()
             }
 
-            this._attachment.filename = this.name;
+            this._attachment.filename = this.name
         }
-        this._mergeProperties();
-        return this._attachment;
+        this._mergeProperties()
+        return this._attachment
     }
 
     /**
@@ -130,11 +130,11 @@ class Attachment {
      */
     _mergeProperties () {
         if (this.options && Object.keys(this.options).length) {
-            const allowed = Attachment.allowedProperties();
+            const allowed = Attachment.allowedProperties()
             for (let option in this.options) {
                 if (this.options.hasOwnProperty(option)) {
                     if (allowed.includes(option) && !this._attachment[option])
-                        this._attachment[option] = this.options[option];
+                        this._attachment[option] = this.options[option]
                 }
             }
         }
@@ -149,10 +149,10 @@ class Attachment {
      */
     _checkPath () {
         try {
-            fs.readFileSync(this.path);
-            return this.path;
+            fs.readFileSync(this.path)
+            return this.path
         } catch (err) {
-            throw new Error(`Attachment::_checkPath  - ${err}`);
+            throw new Error(`Attachment::_checkPath  - ${err}`)
         }
     }
 
@@ -164,10 +164,10 @@ class Attachment {
      */
     _setNameByPath () {
         try {
-            const info = path.parse(this.path);
-            if (info && Object.keys(info).length && info.base) this.name = info.base;
+            const info = path.parse(this.path)
+            if (info && Object.keys(info).length && info.base) this.name = info.base
         } catch (err) {
-            throw new Error(`Attachment::_setNameByPath - Get file info error - ${err}`);
+            throw new Error(`Attachment::_setNameByPath - Get file info error - ${err}`)
         }
     }
 
@@ -176,9 +176,9 @@ class Attachment {
      * @returns {Array}
      */
     static allowedProperties () {
-        return ATTACHMENT_DEFAULTS.ALLOWED_PROPERTIES;
+        return ATTACHMENT_DEFAULTS.ALLOWED_PROPERTIES
     }
 
 }
 
-module.exports = Attachment;
+module.exports = Attachment

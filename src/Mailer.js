@@ -1,38 +1,26 @@
-'use strict';
+'use strict'
 
-const fs = require('fs');
-const nodemailer = require('nodemailer');
-const renderer = require('ejs');
-const Message = require('./Message');
-
-/**
- * @constant MAILER_DEFAULTS
- */
-const MAILER_DEFAULTS = {
-    template_path: './Templates',
-    TRANSPORT_PROTOCOL: 'SMTP',
-    TRANSPORT_OPTIONS: {
-        connectionTimeout: 30 * 1000,
-        pool: false,
-        host: 'localhost',
-        port: '1025'
-    }
-};
+const fs = require('fs')
+const path = require('path')
+const Transporter = require('./Transporter')
+const Message = require('./Message')
 
 /**
  * @constant MAILER_OPTIONS
  */
 const MAILER_OPTIONS = {
+    template_path: './templates',
+    template_renderer: 'ejs',
     template_extension: '.ejs',
     text_extension: '.txt',
-    transporter: null
-};
+    transporter_options: {}
+}
 
 const MESSAGES_OPTIONS = {
     email_regexp: /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/,
     default_from: 'no-reply@localhost.local',
     default_cc: ''
-};
+}
 
 /**
  * @class Mailer
@@ -42,36 +30,39 @@ class Mailer {
 
     /**
      * @description Mailer class constructor
-     * @param {String} template_path path to mails templates
+     * @param {Transporter|null} transporter mailer transport
      * @param {Object} options mailer options
-     * @property {Object} Mailer._transporter Email transporter
+     * @property {Transporter} Mailer.transporter Transporter instance
+     * @property {Object} Mailer.options Mailer options
+     * @property {Object} Mailer._renderer Templates renderer library
      */
     constructor (
-        template_path = MAILER_DEFAULTS.template_path,
+        transporter = null,
         options = {}
     ) {
         /**
-         * @type {String}
-         * @description Templates path
-         * @public
+         * @type {Object|null}
+         * @description Mail transporter
+         * @private
          */
-        this.template_path = template_path;
+        this.transporter = transporter
 
         /**
          * @type {Object}
          * @description Mailer options
          * @public
          */
-        this.options = Object.assign({}, MAILER_OPTIONS, options);
+        this.options = Object.assign({}, MAILER_OPTIONS, options)
 
-        /**
-         * @type {Object|null}
-         * @description Mail transporter
-         * @private
-         */
-        this._transporter = null;
+        this._renderer = null
+        
+        this._createTransport()
+        this._getRenderer()
+    }
 
-        this._createTransporter();
+    static getMailer (options = {}) {
+        const mailer = new this(null, options.mailer || {})
+        return mailer.createMessage(options.message || {})
     }
 
     /**
@@ -82,11 +73,11 @@ class Mailer {
      * @public
      */
     createMessage(options = {}) {
-        options = Object.assign({}, MESSAGES_OPTIONS, options);
+        options = Object.assign({}, MESSAGES_OPTIONS, options)
         try {
-            return new Message(this, options);
+            return new Message(this, options)
         } catch (err) {
-            throw new Error(`Mailer::createMessage - ${err}`);
+            throw new Error(`Mailer::createMessage - ${err}`)
         }
     }
 
@@ -97,8 +88,8 @@ class Mailer {
      * @protected
      */
     getTransport () {
-        if (!this._transporter) throw new Error('Mailer::getTransport - Missing mail transport');
-        return this._transporter;
+        if (!this.transporter) throw new Error('Mailer::getTransport - Missing mail transport')
+        return this.transporter
     }
 
     /**
@@ -110,9 +101,9 @@ class Mailer {
      */
     _renderHTML (template, context = {}) {
         try {
-            return this._readFile(template, context, this.options.template_extension);
+            return this._readFile(template, context, this.options.template_extension)
         } catch (err) {
-            throw new Error(`Mailer::_renderHTML error - ${err}`);
+            throw new Error(`Mailer::_renderHTML error - ${err}`)
         }
     }
 
@@ -126,9 +117,9 @@ class Mailer {
      */
     _renderText (template, context = {}, optional = true) {
         try {
-            return this._readFile(template, context, this.options.text_extension, optional);
+            return this._readFile(template, context, this.options.text_extension, optional)
         } catch (err) {
-            throw new Error(`Mailer::_renderText error - ${err}`);
+            throw new Error(`Mailer::_renderText error - ${err}`)
         }
     }
 
@@ -146,38 +137,38 @@ class Mailer {
      */
     _readFile (template, context, extension, optional = false) {
         try {
-            const file = fs.readFileSync(this.template_path + '/' + template + extension, 'utf8');
-            return renderer.render(file, context);
+            const folder_path = this.options.template_path + path.sep
+            const file_path = `${path.basename(folder_path + template, extension)}${extension}`
+            const file = fs.readFileSync(folder_path + file_path, 'utf8')
+            return this._renderer.render(file, context)
         } catch (err) {
-            if (optional === false) throw new Error(`Mailer::renderHTML - ReadFile error - ${err}`);
+            if (optional === false) throw new Error(`Mailer::renderHTML - ReadFile error - ${err}`)
         }
-        return null;
+        return null
     }
 
     /**
-     * @description Create mailer transporter
-     // * @param transporter mailer transporter
-     * @requires nodemailer
+     * @description Create mailer SMTP transport
      * @throws {Error} if email transport creation throws error(s)
      * @protected
      */
-    _createTransporter () {
-        if (!this._transporter) {
-            if (this.options.transporter !== null) this._transporter = this.options.transporter;
-            else {
-                try {
-                    const createTransport = nodemailer.createTransport;
-                    this._transporter = createTransport(
-                        this.options.protocol || MAILER_DEFAULTS.TRANSPORT_PROTOCOL,
-                        this.options.transport || MAILER_DEFAULTS.TRANSPORT_OPTIONS
-                    );
-                } catch (err) {
-                    throw new Error(`Mailer::_createTransporter - Error on transport creation - ${err}`);
-                }
+    _createTransport () {
+        if (this.transporter !== null) return
+        this.transporter = new Transporter(this.options.transporter_options).getTransport()
+    }
+
+    _getRenderer () {
+        const renderer = this.options.template_renderer
+        if (!renderer) throw new Error("Mailer::_getRenderer - No renderer defined !")
+        else if (renderer.constructor === String) {
+            try {
+                this._renderer = require(renderer)
+            } catch (err) {
+                throw new Error(`Mailer::_getRenderer - Require renderer module error - ${err}`)
             }
-        }
+        } else this._renderer = renderer
     }
 
 }
 
-module.exports = Mailer;
+module.exports = Mailer

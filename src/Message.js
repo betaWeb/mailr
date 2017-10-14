@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const _ = require('lodash');
-const Attachment = require('./Attachment');
+const _ = require('lodash')
+const Attachment = require('./Attachment')
 
 /**
  * @class Message
@@ -28,77 +28,77 @@ class Message {
          * @description Mailer instance
          * @public
          */
-        this.mailer = mailer;
+        this.mailer = mailer
 
         /**
          * @type {Object}
          * @description Message options
          * @public
          */
-        this.options = options;
+        this.options = options
 
         /**
          * @type {String}
          * @description Email template name
          * @private
          */
-        this._template_name = '';
+        this._template_name = ''
 
         /**
          * @type {Array}
          * @description Email From addresses list
          * @private
          */
-        this._from = [];
+        this._from = []
 
         /**
          * @type {Array}
          * @description Email To addresses list
          * @private
          */
-        this._to = [];
+        this._to = []
 
         /**
          * @type {Array}
          * @description Email Copy Carbon addresses list
          * @private
          */
-        this._cc = [];
+        this._cc = []
 
         /**
          * @type {Array}
          * @description Email Blind Copy Carbon addresses list
          * @private
          */
-        this._bcc = [];
+        this._bcc = []
 
         /**
          * @type {Object}
          * @description Email contest
          * @private
          */
-        this._context = {};
+        this._context = {}
 
         /**
          * @type {Array}
          * @description Email attachments list
          * @private
          */
-        this._attachments = [];
+        this._attachments = []
 
         /**
          * @type {Object}
          * @description Email headers
          * @private
          */
-        this._headers = {};
+        this._headers = {}
 
         /**
          * @type {String}
          * @description Email subject
          * @private
          */
-        this._subject = '';
+        this._subject = ''
     }
 
     /**
@@ -107,8 +107,8 @@ class Message {
      * @returns {Message}
      */
     from (...item) {
-        this._pushItem('_from', item);
-        return this;
+        this._pushItem('_from', item)
+        return this
     }
 
     /**
@@ -117,8 +117,8 @@ class Message {
      * @returns {Message}
      */
     to (...item) {
-        this._pushItem('_to', item);
-        return this;
+        this._pushItem('_to', item)
+        return this
     }
 
     /**
@@ -127,8 +127,8 @@ class Message {
      * @returns {Message}
      */
     cc (...item) {
-        this._pushItem('_cc', item);
-        return this;
+        this._pushItem('_cc', item)
+        return this
     }
 
     /**
@@ -137,8 +137,8 @@ class Message {
      * @returns {Message}
      */
     bcc (...item) {
-        this._pushItem('_bcc', item);
-        return this;
+        this._pushItem('_bcc', item)
+        return this
     }
 
     /**
@@ -151,8 +151,8 @@ class Message {
             template
             && template.constructor === String
             && template.length
-        ) this._template_name = template;
-        return this;
+        ) this._template_name = template
+        return this
     }
 
     /**
@@ -166,8 +166,8 @@ class Message {
             subject
             && subject.constructor === String
             && subject.length
-        ) this._subject = subject;
-        return this;
+        ) this._subject = subject
+        return this
     }
 
     /**
@@ -178,8 +178,8 @@ class Message {
      */
     attachments (items = []) {
         if (Array.isArray(items) && items.length)
-            items.forEach(...args => this.attachment(...args));
-        return this;
+            items.forEach(...args => this.attachment(...args))
+        return this
     }
 
     /**
@@ -194,14 +194,14 @@ class Message {
      * @public
      */
     attachment (content, name = null, options = {}, headers = {}) {
-        if (!content || !content.length) throw new Error('Message::attachment - Attachment content is not defined or empty');
+        if (!content || !content.length) throw new Error('Message::attachment - Attachment content is not defined or empty')
         try {
-            const attachment = new Attachment(content, name, options, headers);
-            this._attachments.push(attachment);
+            const attachment = new Attachment(content, name, options, headers)
+            this._attachments.push(attachment)
         } catch (err) {
-            throw new Error(`Message::attachment - Attachment class instanciation error - ${err}`);
+            throw new Error(`Message::attachment - Attachment class instanciation error - ${err}`)
         }
-        return this;
+        return this
     }
 
     /**
@@ -210,8 +210,8 @@ class Message {
      * @returns {Message}
      */
     params (context = {}) {
-        this._context = Object.assign({}, this._context, context);
-        return this;
+        this._context = Object.assign({}, this._context, context)
+        return this
     }
 
     /**
@@ -221,8 +221,8 @@ class Message {
      * @returns {Message}
      */
     param (key, value) {
-        this._context[key] = value;
-        return this;
+        this._context[key] = value
+        return this
     }
 
     /**
@@ -230,7 +230,7 @@ class Message {
      * @returns {{from: (Array), to: (Array), cc: (Array), bcc: (Array), subject: String, html: String, text: (String|null), attachments: Array, headers: Array}}
      */
     getMessage () {
-        this._normalizeEmails();
+        this._normalizeEmails()
         return {
             from: this._from,
             to: this._to,
@@ -252,16 +252,16 @@ class Message {
      * @throws {Error} if transporter is not defined
      */
     send (template = null, context = {}) {
-        this.template(template);
-        this.params(context);
-        if (!this._hasTemplate()) throw new Error('Message::send - Missing email template');
-        if (!this._hasSubject()) throw new Error('Message::send - Missing email subject');
+        this.template(template)
+        this.params(context)
+        if (!this._hasTemplate()) throw new Error('Message::send - Missing email template')
+        if (!this._hasSubject()) throw new Error('Message::send - Missing email subject')
         return new Promise((resolve, reject) => {
             this.mailer.getTransport().sendMail(this.getMessage(), err => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
+                if (err) reject(err)
+                else resolve()
+            })
+        })
     }
 
     /**
@@ -269,17 +269,17 @@ class Message {
      * @private
      */
     _normalizeEmails () {
-        if (!this._from.length) this.from(this.options.default_from);
-        this._validateList('_from');
-        if (!this._from.length) throw new Error('Message::from - You must define at least one emitter email address');
+        if (!this._from.length) this.from(this.options.default_from)
+        this._validateList('_from')
+        if (!this._from.length) throw new Error('Message::from - You must define at least one emitter email address')
 
-        this._validateList('_to');
-        if (!this._to.length) throw new Error('Message::to - You must define at least one receiver email address');
+        this._validateList('_to')
+        if (!this._to.length) throw new Error('Message::to - You must define at least one receiver email address')
 
-        if (!this._cc.length) this.cc(this.options.default_cc);
-        this._validateList('_cc');
+        if (!this._cc.length) this.cc(this.options.default_cc)
+        this._validateList('_cc')
 
-        this._validateList('_bcc');
+        this._validateList('_bcc')
     }
 
     /**
@@ -290,14 +290,14 @@ class Message {
      * @private
      */
     _normalizeEmail (email = null) {
-        if (!email) return null;
+        if (!email) return null
         try {
-            const {regexp} = this.options;
-            const re = new RegExp(regexp);
-            return re.test(email);
+            const {regexp} = this.options
+            const re = new RegExp(regexp)
+            return re.test(email)
         } catch (err) {
-            console.error(new Error('Message::_normalizeEmail - Regexp test error = ${err}'));
-            return false;
+            console.error(new Error('Message::_normalizeEmail - Regexp test error = ${err}'))
+            return false
         }
     }
 
@@ -313,7 +313,7 @@ class Message {
                 .chain(this[key])
                 .filter(item => this._normalizeEmail(item) !== null)
                 .uniq()
-                .value();
+                .value()
         }
     }
 
@@ -325,8 +325,8 @@ class Message {
      */
     _pushItem (key, ...item) {
         if (item && item.length) {
-            if (Array.isArray(item[0])) item = item[0];
-            if (this[key]) this[key].push(...item);
+            if (Array.isArray(item[0])) item = item[0]
+            if (this[key]) this[key].push(...item)
         }
     }
 
@@ -336,7 +336,7 @@ class Message {
      * @private
      */
     _hasTemplate () {
-        return this._check('_template_name', 'string');
+        return this._check('_template_name', 'string')
     }
 
     /**
@@ -345,7 +345,7 @@ class Message {
      * @private
      */
     _hasSubject () {
-        return this._check('_subject', 'string');
+        return this._check('_subject', 'string')
     }
 
     /**
@@ -356,14 +356,14 @@ class Message {
      * @private
      */
     _check (key, type = 'string') {
-        if (!key || !this[key]) return false;
-        const item = this[key];
-        let check = item !== null;
-        if (this[key].hasOwnProperty('length')) check = check && item.length;
-        if (type) check = check && typeof item === type;
-        return Boolean(check);
+        if (!key || !this[key]) return false
+        const item = this[key]
+        let check = item !== null
+        if (this[key].hasOwnProperty('length')) check = check && item.length
+        if (type) check = check && typeof item === type
+        return Boolean(check)
     }
 
 }
 
-module.exports = Message;
+module.exports = Message
