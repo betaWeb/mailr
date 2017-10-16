@@ -289,8 +289,12 @@ class Message {
         }
     }
 
-    sendAndClose (template = null, context = {}, callback) {
-        return this.send(template, context, callback)
+    /**
+     * @description Send email and close transport (only with promises)
+     * @inheritdoc
+     */
+    sendAndClose (template = null, context = {}) {
+        return this.send(template, context)
             .then(_ => this.mailer.getTransport().close())
     }
 
