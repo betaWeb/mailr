@@ -175,7 +175,7 @@ class Mailer {
         try {
             const folder_path = this.options.template_path + path.sep
             const file_path = `${path.basename(folder_path + template, extension)}${extension}`
-            const file = fs.readFileSync(folder_path + file_path, 'utf8')
+            const file = fs.readFileSync(path.resolve(folder_path + file_path), 'utf8')
             return this._renderer.render(file, context)
         } catch (err) {
             if (optional === false) throw new Error(`Mailer::renderHTML - ReadFile error - ${err}`)
