@@ -10,6 +10,7 @@ const ATTACHMENT_DEFAULTS = {
     FILE_TYPE: 'local',
     ALLOWED_PROPERTIES: [
         'filename',
+        'filePath',
         'content',
         'path',
         'href',
@@ -18,7 +19,8 @@ const ATTACHMENT_DEFAULTS = {
         'cid',
         'encoding',
         'headers',
-        'raw'
+        'raw',
+        'cid'
     ]
 }
 
@@ -94,21 +96,21 @@ class Attachment {
      * @private
      */
     _getProperties () {
-        if (this.options.raw) this._attachment.raw = this.options.raw
+        if (this.options.raw) this._setProperty('raw', this.options.raw)
         else {
-            if (!this.path) throw new Error('Attachment::getProperty - Missing attachment content')
+            if (!this.path) throw new Error('Attachment::_getProperties - Missing attachment content')
             if (this._file_type === 'local') {
                 const path = this._checkPath()
-                this._attachment.filePath = path
-                this._attachment.path = path
+                this._setProperty('filePath', path)
+                this._setProperty('path', path)
             }
             else if (this._file_type === 'stream') {
                 const path = this._checkPath()
-                this._attachment.content = fs.createReadStream(path, this.options.STREAM_OPTIONS)
-                this._attachment.filePath = path
+                this._setProperty('content', fs.createReadStream(path, this.options.STREAM_OPTIONS))
+                this._setProperty('filePath', path)
             }
-            else if (this._file_type === 'string') this._attachment.content = this.path
-            else if (this._file_type === 'href') this._attachment.href = this.path
+            else if (this._file_type === 'string') this._setProperty('content', this.path)
+            else if (this._file_type === 'href') this._setProperty('href', this.path)
 
             if (
                 !this.name
@@ -118,7 +120,9 @@ class Attachment {
                 this._setNameByPath()
             }
 
-            this._attachment.filename = this.name
+            this._setProperty('filename', this.name)
+
+            if (this.options.cid) this._setProperty('cid', this.options.cid)
         }
         this._mergeProperties()
         return this._attachment
@@ -138,6 +142,18 @@ class Attachment {
                 }
             }
         }
+    }
+
+    /**
+     * @description Set Attachment property
+     * @returns {Attachment} Attachment instance
+     * @private
+     */
+    _setProperty (key, value) {
+        const allowed = Attachment.allowedProperties()
+        if (!allowed.includes(key)) throw new Error(`Attachment::_setProperty - Property '${key}' not allowed (${allowed.join(',')})`)
+        this._attachment[key] = value
+        return this
     }
 
     /**
