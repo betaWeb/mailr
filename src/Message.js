@@ -8,6 +8,7 @@ const Attachment = require('./Attachment')
  * @description Represents an email message
  */
 class Message {
+
     /**
      * @description Message constructor
      * @param {Mailer} mailer
@@ -103,41 +104,41 @@ class Message {
 
     /**
      * @description Append emitter email(s) to list
-     * @param item
+     * @param value
      * @returns {Message}
      */
-    from (...item) {
-        this._alterProp('_from', item)
+    from (...value) {
+        this._alterProp('_from', value)
         return this
     }
 
     /**
      * @description Append receiver email(s)
-     * @param item
+     * @param value
      * @returns {Message}
      */
-    to (...item) {
-        this._alterProp('_to', item)
+    to (...value) {
+        this._alterProp('_to', value)
         return this
     }
 
     /**
      * @description Append CC email(s) to list
-     * @param item
+     * @param value
      * @returns {Message}
      */
-    cc (...item) {
-        this._alterProp('_cc', item)
+    cc (...value) {
+        this._alterProp('_cc', value)
         return this
     }
 
     /**
      * @description Append BCC email(s) to list
-     * @param item
+     * @param value
      * @returns {Message}
      */
-    bcc (...item) {
-        this._alterProp('_bcc', item)
+    bcc (...value) {
+        this._alterProp('_bcc', value)
         return this
     }
 
@@ -349,7 +350,7 @@ class Message {
     /**
      * @description Set/Alter instance property
      * @param key
-     * @param item
+     * @param value
      * @private
      */
     _alterProp (key, ...value) {
