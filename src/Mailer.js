@@ -53,16 +53,42 @@ class Mailer {
          * @public
          */
         this.options = Object.assign({}, MAILER_OPTIONS, options)
-
+        
+        /**
+         * @type {Object}
+         * @description Renderer instance
+         * @private
+         */
         this._renderer = null
         
-        this._createTransport()
-        this._getRenderer()
+        try {
+            this._createTransport()
+        } catch (err) {
+            throw new Error(`Mailer::constructor - 'Mailer._createTransport' method call Error - ${err}`)
+        }
+
+        try {
+            this._getRenderer()
+        } catch (err) {
+            throw new Error(`Mailer::constructor - 'Mailer._getRenderer' method call Error - ${err}`)            
+        }
     }
 
+    /**
+     * @description Get Mailer instance and create Message instance
+     * @param {Object} options
+     * @returns [Message] Message instance
+     * @throws {Error} if method throws error(s)
+     * @static
+     * @public
+     */
     static getMailer (options = {}) {
-        const mailer = new this(null, options.mailer || {})
-        return mailer.createMessage(options.message || {})
+        try {
+            const mailer = new this(null, options.mailer || {})
+            return mailer.createMessage(options.message || {})
+        } catch (err) {
+            throw new Error(`Mailer::getMailer - ${err}`)
+        }
     }
 
     /**
@@ -90,6 +116,17 @@ class Mailer {
     getTransport () {
         if (!this.transporter) throw new Error('Mailer::getTransport - Missing mail transport')
         return this.transporter
+    }
+
+    /**
+     * @description Set mail transport
+     * @returns {Mailer} Mailer instance
+     * @protected
+     */
+    setTransport (transporter) {
+        if (!transporter instanceof Transporter) throw new Error('Mailer::setTransport - transporter parameter must be a valid instance of class Transporter')
+        this.transporter = transporter
+        return this
     }
 
     /**
@@ -153,9 +190,14 @@ class Mailer {
      */
     _createTransport () {
         if (this.transporter !== null && this.transporter instanceof Transporter) return
-        this.transporter = new Transporter(this.options.transporter_options).getTransport()
+        this.transporter = new Transporter(this.options.transporter_options).transport
     }
 
+    /**
+     * @description Create and get renderer
+     * @throws {Error} if email transport creation throws error(s)
+     * @protected
+     */
     _getRenderer () {
         const renderer = this.options.renderer_module_name
         if (!renderer) throw new Error("Mailer::_getRenderer - No renderer defined !")

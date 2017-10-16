@@ -2,6 +2,9 @@
 
 const createTransport = require('nodemailer').createTransport
 
+/**
+ * @constant TRANSPORTER_OPTIONS
+ */
 const TRANSPORTER_OPTIONS = {
     connectionTimeout: 30 * 1000,
     pool: false,
@@ -13,8 +16,18 @@ const TRANSPORTER_OPTIONS = {
     debug: false
 }
 
+/**
+ * @class Transporter
+ * @description Mailr transport class
+ */
 class Transporter {
 
+    /**
+     * @description Transporter class constructor
+     * @param {Object} options mailer options
+     * @property {Object} Mailer.options Transporter options
+     * @property {Transporter} Mailer._transport Mail transport instance
+     */
     constructor (options = {}) {
         this.options = Object.assign({}, TRANSPORTER_OPTIONS, options)
 
@@ -23,7 +36,12 @@ class Transporter {
         this._createSMTPTransport()
     }
 
-    getTransport () {
+    /**
+     * @description Get Transporter _transport property
+     * @returns {Object|null}
+     * @public
+     */
+    get transport () {
         return this._transport
     }
 
@@ -31,7 +49,7 @@ class Transporter {
      * @description Create mailer SMTP transport
      * @requires nodemailer
      * @throws {Error} if email transport creation throws error(s)
-     * @protected
+     * @private
      */
     _createSMTPTransport () {
         try {

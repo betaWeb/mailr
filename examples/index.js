@@ -8,7 +8,7 @@ const options = {
         default_from: 'contact@local.dev'
     } 
 }
-const message = require('../src/Mailer').getMailer(options)
+const message = require('../index').getMailer(options)
 message
     .template('simple')
     .to('cyprien.glepin@gmail.com')

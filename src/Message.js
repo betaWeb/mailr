@@ -257,10 +257,14 @@ class Message {
         if (!this._hasTemplate()) throw new Error('Message::send - Missing email template')
         if (!this._hasSubject()) throw new Error('Message::send - Missing email subject')
         return new Promise((resolve, reject) => {
-            this.mailer.getTransport().sendMail(this.getMessage(), err => {
-                if (err) reject(err)
-                else resolve()
-            })
+            try {
+                this.mailer.getTransport().sendMail(this.getMessage(), err => {
+                    if (err) reject(err)
+                    else resolve()
+                })
+            } catch (err) {
+                throw new Error(`Message::send - Error - ${err}`)
+            }
         })
     }
 
