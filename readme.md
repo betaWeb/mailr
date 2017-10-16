@@ -1,28 +1,25 @@
 # Mailr
 ## A fluent mail library for NodeJS based on [Nodemailer](https://github.com/nodemailer/nodemailer)
 
-The goal of Mailr is simple : send fluent emails with NodeJS.
+The goal of Mailr is simple : create and send emails by fluent-way with NodeJS.
 
 <br>
 
-### Basic example (with EJS templating) :
+### Basic example :
 #### NodeJS :
 ```JS
 const Mailr = require('Mailr')
-const options = {
-    mailer: {
-        template_path: './templates'
-    },
-    message: {
-        default_from: 'No-reply <no-reply@local.dev>'
-    } 
-}
+const mailr = new Mailr({
+    template_path: './templates',
+    renderer_module_name: require('nunjucks')
+})
 
-Mailr
-    .getMailer(options)
-    .template('simple')
+mailr
+    .createMessage()
+    .from('no-reply@local.dev')
     .to('contact@local.dev')
     .subject('Mailr is awesome !')
+    .template('simple')
     .params({
         title: 'Donec sollicitudin molestie malesuada',
         content: 'Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Sed porttitor lectus nibh.'
@@ -31,15 +28,16 @@ Mailr
     .then(_ => console.log('Email sended'))
     .catch(console.error)
 ``` 
-#### Template EJS :
+#### Template (with [Nunjucks](https://mozilla.github.io/nunjucks/)) :
 ```HTML
 <html>
     <head>
         <meta charset="utf8">
     </head>
     <body>
-        <h1><%= title %></h1>
-        <p><%= content %></p>
+        <h1>{{ title }}</h1>
+        <p>{{ content }}</p>
     </body>
 </html>
 ```
+The templates renderer is EJS by default.

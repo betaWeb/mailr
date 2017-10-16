@@ -4,6 +4,15 @@ const _ = require('lodash')
 const Attachment = require('./Attachment')
 
 /**
+ * @constant MESSAGES_OPTIONS
+ */
+const MESSAGES_OPTIONS = {
+    email_regexp: /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/,
+    default_from: 'no-reply@local.dev',
+    default_cc: ''
+}
+
+/**
  * @class Message
  * @description Represents an email message
  */
@@ -36,7 +45,7 @@ class Message {
          * @description Message options
          * @public
          */
-        this.options = options
+        this.options = Object.assign({}, MESSAGES_OPTIONS, options)
 
         /**
          * @type {String}

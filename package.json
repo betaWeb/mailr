@@ -25,6 +25,7 @@
   "homepage": "https://github.com/betaWeb/mailr#readme",
   "dependencies": {
     "lodash": "^4.17.4",
-    "nodemailer": "^4.1.3"
+    "nodemailer": "^4.1.3",
+    "nunjucks": "^3.0.1"
   }
 }

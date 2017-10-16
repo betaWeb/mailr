@@ -10,16 +10,10 @@ const Message = require('./Message')
  */
 const MAILER_OPTIONS = {
     template_path: './templates',
-    template_extension: '.ejs',
-    renderer_module_name: 'ejs',
+    renderer_module_name: 'nunjucks',
+    template_extension: '.njk',
     text_extension: '.txt',
     transporter_options: {}
-}
-
-const MESSAGES_OPTIONS = {
-    email_regexp: /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/,
-    default_from: 'no-reply@localhost.local',
-    default_cc: ''
 }
 
 /**
@@ -40,6 +34,14 @@ class Mailer {
         transporter = null,
         options = {}
     ) {
+        if (
+            transporter !== null 
+            && transporter.constructor === Object
+        ) {
+            options = transporter
+            transporter = null
+        }
+
         /**
          * @type {Object|null}
          * @description Mail transporter
@@ -99,7 +101,6 @@ class Mailer {
      * @public
      */
     createMessage(options = {}) {
-        options = Object.assign({}, MESSAGES_OPTIONS, options)
         try {
             return new Message(this, options)
         } catch (err) {
@@ -175,8 +176,8 @@ class Mailer {
         try {
             const folder_path = this.options.template_path + path.sep
             const file_path = `${path.basename(folder_path + template, extension)}${extension}`
-            const file = fs.readFileSync(path.resolve(folder_path + file_path), 'utf8')
-            return this._renderer.render(file, context)
+            const tpl = path.resolve(folder_path + file_path)
+            return this._renderer.render(tpl, context)
         } catch (err) {
             if (optional === false) throw new Error(`Mailer::renderHTML - ReadFile error - ${err}`)
         }

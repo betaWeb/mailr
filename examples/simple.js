@@ -1,15 +1,9 @@
 'use strict'
 
-const options = {
-    mailer: {
-        template_path: './templates'
-    },
-    message: {
-        default_from: 'No-reply <no-reply@local.dev>'
-    } 
-}
-const email = require('../index').getMailer(options)
-const message = email
+const Mailr = require('../index')
+const mailr = new Mailr({template_path: './templates'})
+
+mailr.createMessage()
     .template('simple')
     .to('contact@local.dev')
     .subject('Mon super email')
@@ -17,7 +11,6 @@ const message = email
         title: 'Mon super titre',
         content: 'Mon super message !'
     })
-
-message.send()
+    .send()
     .then(_ => console.log('Email sended'))
     .catch(console.error)
