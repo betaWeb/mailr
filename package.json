@@ -1,6 +1,6 @@
 {
   "name": "mailr",
-  "version": "1.0.0",
+  "version": "0.1",
   "description": "Fluent mail library for NodeJS",
   "main": "Mailer.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "fluent"
   ],
   "author": "betaweb <betaweb34@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/betaWeb/mailr/issues"
   },
