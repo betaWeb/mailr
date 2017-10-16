@@ -5,16 +5,19 @@ const options = {
         template_path: './templates'
     },
     message: {
-        default_from: 'contact@local.dev'
+        default_from: 'No-reply <no-reply@local.dev>'
     } 
 }
-const message = require('../index').getMailer(options)
-message
+const email = require('../index').getMailer(options)
+const message = email
     .template('simple')
-    .to('cyprien.glepin@gmail.com')
+    .to('contact@local.dev')
     .subject('Mon super email')
     .params({
         title: 'Mon super titre',
         content: 'Mon super message !'
     })
-    .send()
+
+message.send()
+    .then(_ => console.log('Email sended'))
+    .catch(console.error)

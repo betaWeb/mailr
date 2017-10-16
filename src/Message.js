@@ -107,7 +107,7 @@ class Message {
      * @returns {Message}
      */
     from (...item) {
-        this._pushItem('_from', item)
+        this._alterProp('_from', item)
         return this
     }
 
@@ -117,7 +117,7 @@ class Message {
      * @returns {Message}
      */
     to (...item) {
-        this._pushItem('_to', item)
+        this._alterProp('_to', item)
         return this
     }
 
@@ -127,7 +127,7 @@ class Message {
      * @returns {Message}
      */
     cc (...item) {
-        this._pushItem('_cc', item)
+        this._alterProp('_cc', item)
         return this
     }
 
@@ -137,7 +137,7 @@ class Message {
      * @returns {Message}
      */
     bcc (...item) {
-        this._pushItem('_bcc', item)
+        this._alterProp('_bcc', item)
         return this
     }
 
@@ -246,26 +246,51 @@ class Message {
 
     /**
      * @description Send email
-     * @returns {Promise} promise instance
+     * @param {String|null} template message template
+     * @param {Object} context message context
+     * @param {Function|undefined} callback send callback function
+     * @returns {Promise|undefined} Promise instance or undefined if callback parameter is defined
      * @throws {Error} throw error if template is not defined
      * @throws {Error} throw error if subject is not defined
      * @throws {Error} if transporter is not defined
      */
-    send (template = null, context = {}) {
+    send (template = null, context = {}, callback) {
+        if (
+            template !== null 
+            && template.constructor === Function
+        ) {
+            callback = template;
+            template = null;
+            context = {};
+        }
+        if (context.constructor === Function) {
+            callback = context;
+            context = {};
+        }
+
         this.template(template)
         this.params(context)
         if (!this._hasTemplate()) throw new Error('Message::send - Missing email template')
         if (!this._hasSubject()) throw new Error('Message::send - Missing email subject')
-        return new Promise((resolve, reject) => {
-            try {
-                this.mailer.getTransport().sendMail(this.getMessage(), err => {
-                    if (err) reject(err)
-                    else resolve()
-                })
-            } catch (err) {
-                throw new Error(`Message::send - Error - ${err}`)
-            }
-        })
+
+        if (callback) this.mailer.getTransport().sendMail(this.getMessage(), callback)
+        else {
+            return new Promise((resolve, reject) => {
+                try {
+                    this.mailer.getTransport().sendMail(this.getMessage(), err => {
+                        if (err) reject(err)
+                        else resolve()
+                    })
+                } catch (err) {
+                    throw new Error(`Message::send - Error - ${err}`)
+                }
+            })
+        }
+    }
+
+    sendAndClose (template = null, context = {}, callback) {
+        return this.send(template, context, callback)
+            .then(_ => this.mailer.getTransport().close())
     }
 
     /**
@@ -322,15 +347,15 @@ class Message {
     }
 
     /**
-     * @description Push item into list
+     * @description Set/Alter instance property
      * @param key
      * @param item
      * @private
      */
-    _pushItem (key, ...item) {
-        if (item && item.length) {
-            if (Array.isArray(item[0])) item = item[0]
-            if (this[key]) this[key].push(...item)
+    _alterProp (key, ...value) {
+        if (value && value.length) {
+            if (Array.isArray(value[0])) value = value[0]
+            if (this[key]) this[key].push(...value)
         }
     }
 
