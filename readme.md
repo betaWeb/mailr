@@ -28,7 +28,7 @@ mailr
     .then(_ => console.log('Email sended'))
     .catch(console.error)
 ``` 
-#### Template (with [Nunjucks](https://mozilla.github.io/nunjucks/)) :
+#### Template (with [Nunjucks](https://mozilla.github.io/nunjucks/) by default) :
 ```HTML
 <html>
     <head>
@@ -40,4 +40,3 @@ mailr
     </body>
 </html>
 ```
-The templates renderer is EJS by default.
