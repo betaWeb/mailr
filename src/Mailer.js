@@ -4,13 +4,14 @@ const fs = require('fs')
 const path = require('path')
 const Transporter = require('./Transporter')
 const Message = require('./Message')
+const Renderer = require('./renderer/Renderer')
 
 /**
  * @constant MAILER_OPTIONS
  */
 const MAILER_OPTIONS = {
     template_path: './templates',
-    renderer_module_name: 'nunjucks',
+    renderer: 'Nunjucks',
     template_extension: '.njk',
     text_extension: '.txt',
     transporter_options: {}
@@ -91,6 +92,16 @@ class Mailer {
         } catch (err) {
             throw new Error(`Mailer::getMailer - ${err}`)
         }
+    }
+
+    /**
+     * @description Get Renderer class
+     * @returns [Renderer] Renderer object
+     * @static
+     * @public
+     */
+    static get Renderer () {
+        return Renderer
     }
 
     /**
@@ -195,20 +206,32 @@ class Mailer {
     }
 
     /**
-     * @description Create and get renderer
-     * @throws {Error} if email transport creation throws error(s)
+     * @description Create and get a template renderer
+     * @throws {Error} if renderer creation throws error(s)
      * @protected
      */
     _getRenderer () {
-        const renderer = this.options.renderer_module_name
-        if (!renderer) throw new Error("Mailer::_getRenderer - No renderer defined !")
-        else if (renderer.constructor === String) {
-            try {
-                this._renderer = require(renderer)
-            } catch (err) {
-                throw new Error(`Mailer::_getRenderer - Require "${renderer}" module error - ${err}`)
-            }
-        } else this._renderer = renderer
+        let Renderer = null
+        let module_name = this.options.renderer || null
+
+        if (!module_name) module_name = 'Nunjucks'
+
+        try {
+            if (module_name.constructor === String) {
+                try {
+                    fs.lstatSync(module_name).isFile()
+                    Renderer = require(module_name)
+                } catch (err) {
+                    Renderer = require(`./renderer/${module_name}Renderer`)
+                }
+                this._renderer = new Renderer()
+            } else this._renderer = module_name
+        } catch (err) {
+            throw new Error(`Mailer::_getRenderer - Create '${module_name}Renderer' error - ${err}`)
+        }
+
+        if (!this._renderer.render)
+            throw new Error(`Mailer::_getRenderer - '${module_name}Renderer' must have a 'render' method`)
     }
 
 }

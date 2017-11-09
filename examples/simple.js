@@ -1,7 +1,7 @@
 'use strict'
 
 const Mailr = require('../index')
-const mailr = new Mailr({template_path: './templates'})
+const mailr = new Mailr({ template_path: './templates' })
 
 mailr.createMessage()
     .template('simple')

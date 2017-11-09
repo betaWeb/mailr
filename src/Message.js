@@ -197,16 +197,15 @@ class Message {
      * @param {String} content
      * @param {String} name
      * @param {Object} options
-     * @param {Object} headers
      * @returns {Message}
      * @requires Attachment class
      * @throws {Error} if attachment content is not defined
      * @public
      */
-    attachment (content, name = null, options = {}, headers = {}) {
+    attachment (content, name = null, options = {}) {
         if (!content || !content.length) throw new Error('Message::attachment - Attachment content is not defined or empty')
         try {
-            const attachment = new Attachment(content, name, options, headers)
+            const attachment = new Attachment(content, name, options)
             this._attachments.push(attachment)
         } catch (err) {
             throw new Error(`Message::attachment - Attachment class instanciation error - ${err}`)

@@ -42,14 +42,12 @@ class Attachment {
      * @param {String|*} path - Attachment path or content
      * @param {String|null} name - Attachment name
      * @param {Object} options - Attachment options
-     * @param {Object} headers - Attachment headers
      * @returns {Object} Attachment options object
      */
     constructor(
         path,
         name = null,
-        options = {},
-        headers = {}
+        options = {}
     ) {
         /**
          * @description Attachment path
@@ -68,12 +66,6 @@ class Attachment {
          * @public
          */
         this.options = Object.assign({}, ATTACHMENT_OPTIONS, options)
-
-        /**
-         * @description Attachment headers
-         * @public
-         */
-        this.headers = headers
 
         /**
          * @description Attachment properties
