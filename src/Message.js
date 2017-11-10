@@ -151,6 +151,31 @@ class Message {
         return this
     }
 
+    receivers (to, cc = [], bcc = []) {
+        if (!to) throw new Error('Message.receivers - You must define a receiver at least')
+
+        if (to.constructor === Object)
+            return this.receivers(to.to || null, to.cc || [], to.bcc || [])
+        else {
+            if ((!to || !to.length) && !this._to.length)
+                throw new Error('Message.receivers - You must define a receiver at least')
+
+            if (to.constructor === String) to = [to]
+            this.to.apply(this, to)
+
+            if (cc && cc.length) {
+                if (cc.constructor === String) cc = [cc]
+                this.cc.apply(this, cc)
+            }
+
+            if (bcc && bcc.length) {
+                if (bcc.constructor === String) bcc = [bcc]
+                this.bcc.apply(this, bcc)
+            }
+        }
+        return this
+    }
+
     /**
      * @description Define template
      * @param template
@@ -232,6 +257,10 @@ class Message {
     param (key, value) {
         this._context[key] = value
         return this
+    }
+
+    get (key) {
+        return this[`_${key}`] || null
     }
 
     /**
@@ -338,9 +367,9 @@ class Message {
             const re = new RegExp(regexp)
             return re.test(email)
         } catch (err) {
-            console.error(new Error('Message::_normalizeEmail - Regexp test error = ${err}'))
-            return false
+            new Error('Message::_normalizeEmail - Regexp test error = ${err}')
         }
+        return false
     }
 
     /**
