@@ -8,10 +8,9 @@ class NunjucksRenderer extends Renderer {
     super()
     this._name = 'Nunjucks'
     this._module_name = 'nunjucks'
-    this._loadModule()
   }
 
-  render (tpl, context) {
+  render (tpl, context = {}) {
     return this._module.render(tpl, context)
   }
 

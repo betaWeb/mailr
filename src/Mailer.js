@@ -224,7 +224,7 @@ class Mailer {
                 } catch (err) {
                     Renderer = require(`./renderer/${module_name}Renderer`)
                 }
-                this._renderer = new Renderer()
+                this._renderer = (new Renderer).init()
             } else this._renderer = module_name
         } catch (err) {
             throw new Error(`Mailer::_getRenderer - Create '${module_name}Renderer' error - ${err}`)
