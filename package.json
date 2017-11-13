@@ -1,6 +1,6 @@
 {
   "name": "mailr",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "Fluent mail library for NodeJS",
   "main": "index.js",
   "scripts": {
