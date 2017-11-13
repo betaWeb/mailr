@@ -42,7 +42,6 @@ class Attachment {
      * @param {String|*} path - Attachment path or content
      * @param {String|null} name - Attachment name
      * @param {Object} options - Attachment options
-     * @returns {Object} Attachment options object
      */
     constructor(
         path,
@@ -79,7 +78,16 @@ class Attachment {
          */
         this._file_type = this.options.type || ATTACHMENT_DEFAULTS.FILE_TYPE
 
-        return this._getProperties()
+        this._setProperties()
+    }
+
+
+    /**
+     * @description Get attachment properties
+     * @returns Attachment properties
+     */
+    getProperties () {
+        return this._attachment
     }
 
     /**
@@ -87,7 +95,7 @@ class Attachment {
      * @returns {Object} Attachment object
      * @private
      */
-    _getProperties () {
+    _setProperties () {
         if (this.options.raw) this._setProperty('raw', this.options.raw)
         else {
             if (!this.path) throw new Error('Attachment::_getProperties - Missing attachment content')
@@ -95,29 +103,27 @@ class Attachment {
                 const path = this._checkPath()
                 this._setProperty('filePath', path)
                 this._setProperty('path', path)
-            }
-            else if (this._file_type === 'stream') {
+            } else if (this._file_type === 'stream') {
                 const path = this._checkPath()
                 this._setProperty('content', fs.createReadStream(path, this.options.STREAM_OPTIONS))
                 this._setProperty('filePath', path)
-            }
-            else if (this._file_type === 'string') this._setProperty('content', this.path)
-            else if (this._file_type === 'href') this._setProperty('href', this.path)
+            } else if (this._file_type === 'string')
+                this._setProperty('content', this.path)
+            else if (this._file_type === 'href')
+                this._setProperty('href', this.path)
 
             if (
                 !this.name
                 || this.name.constructor !== String
                 || !this.name.length
-            ) {
-                this._setNameByPath()
-            }
+            ) this._setNameByPath()
 
             this._setProperty('filename', this.name)
 
             if (this.options.cid) this._setProperty('cid', this.options.cid)
         }
         this._mergeProperties()
-        return this._attachment
+        // return this._attachment
     }
 
     /**

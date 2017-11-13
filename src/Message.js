@@ -277,7 +277,7 @@ class Message {
             subject: this._subject,
             html: this.mailer._renderHTML(this._template_name, this._context),
             text: this.mailer._renderText(this._template_name, this._context, true),
-            attachments: this._attachments,
+            attachments: this._attachments.map(attachment => attachment.getProperties()),
             headers: Object.assign({}, this._headers, {subject: this._subject})
         }
     }
@@ -305,11 +305,14 @@ class Message {
             callback = context;
             context = {};
         }
+        
+        if (template !== null && (!this._template_name || !this._template_name.length))
+            this.template(template)
 
-        this.template(template)
         this.params(context)
-        if (!this._hasTemplate()) throw new Error('Message::send - Missing email template')
+
         if (!this._hasSubject()) throw new Error('Message::send - Missing email subject')
+        if (!this._hasTemplate()) throw new Error('Message::send - Missing email template')
 
         if (callback) this.mailer.getTransport().sendMail(this.getMessage(), callback)
         else {
@@ -331,7 +334,8 @@ class Message {
      * @inheritdoc
      */
     sendAndClose (template = null, context = {}) {
-        return this.send(template, context)
+        return this
+            .send(template, context)
             .then(_ => this.mailer.getTransport().close())
     }
 
