@@ -7,7 +7,7 @@ The goal of Mailr is simple : create and send emails by fluent-way with NodeJS.
 
 ### Basic example :
 #### NodeJS :
-```JS
+```javascript
 const Mailr = require('Mailr')
 const mailr = new Mailr({
     template_path: './templates',

@@ -13,7 +13,7 @@ const TRANSPORTER_OPTIONS = {
     ignoreTLS: true,
     port: 1025,
     logger: false,
-    debug: false
+    debug: true
 }
 
 /**
